@@ -89,3 +89,4 @@ index.html
     <br>
     <a href="{{ url_for('view_cart') }}">View Cart</a>
 </body>
+</html>
