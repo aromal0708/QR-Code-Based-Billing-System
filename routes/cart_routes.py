@@ -74,13 +74,16 @@ def remove_from_cart():
     return redirect('/cart')
 
 # Checkout Route (Ensure correct total amount)
-@cart_bp.route('/checkout', methods=['GET'])
+@cart_bp.route('/checkout')
 def checkout():
-    # Ensure session ID exists
-    if 'session_id' not in session:
-        session['session_id'] = str(uuid.uuid4())  # Generate a new session if not exists
+    if 'cart' not in session or not session['cart']:
+        flash("Your cart is empty.", "warning")
+        return redirect(url_for('cart.view_cart'))  # Redirect if no items in cart
 
-    return render_template('checkout.html')
+    # Calculate total price from the session cart
+    total_price = sum(item['total_price'] for item in session['cart'])
+
+    return render_template("checkout.html", total_price=total_price)
 
 @cart_bp.route('/cancel_purchase', methods=['POST'])
 def cancel_purchase():
