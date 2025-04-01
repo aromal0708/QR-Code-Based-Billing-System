@@ -9,20 +9,25 @@
 <body>
     <h1>Your Cart</h1>
 
+    {% if cart %}
     <table border="1">
         <tr>
             <th>Product Name</th>
             <th>Price</th>
+            <th>Quantity</th>
+            <th>Total Price</th>
             <th>Action</th>
         </tr>
         {% for item in cart %}
         <tr>
             <td>{{ item.name }}</td>
-            <td>₹{{ item.price }}</td>
+            <td>₹{{ item.price}}</td>  <!-- Price per item -->
+            <td>{{ item.quantity }}</td>
+            <td>₹{{ item.price * item.quantity }}</td>  <!-- Total price for that item -->
             <td>
                 <form action="/remove_from_cart" method="POST">
                     <input type="hidden" name="product_id" value="{{ item.id }}">
-                    <button type="submit">Remove</button>
+                    <button type="submit">Remove One</button>
                 </form>
             </td>
         </tr>
@@ -31,8 +36,25 @@
 
     <p><strong>Total Price:</strong> ₹{{ total_price }}</p>
 
-    <form action="{{ url_for('checkout') }}" method="GET">
-        <button type="submit">Proceed to Checkout</button>
+    <!-- Proceed to Pay Button -->
+    <form action="{{ url_for('cart.checkout') }}" method="get">
+        <button type="submit" class="btn btn-primary">Proceed to Pay</button>
     </form>
+
+    <!-- Cancel Purchase Button -->
+    <form action="{{ url_for('cart.cancel_purchase') }}" method="POST">
+        <button type="submit">Cancel Purchase</button>
+    </form>
+
+    {% else %}
+    <p>Your cart is empty.</p>
+    {% endif %}
+
+    <br>
+    <!-- Return to Shopping Button -->
+    <a href="{{ url_for('product.home') }}">
+        <button>Return to Shopping</button>
+    </a>
 </body>
 </html>
+<!-- End of cart.html -->
