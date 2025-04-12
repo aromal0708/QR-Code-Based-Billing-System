@@ -1,46 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Billing System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scan QR to Add Product</title>
+    <link rel="stylesheet" href="static/css/index.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <h2>Scan QR Code to Add Product</h2>
+      
+      <div class="qr-upload">
+        <label for="qrInput" class="upload-label">
+          Choose QR Code Image
+        </label>
+        <input type="file" id="qrInput" accept="image/*" />
+      </div>
+
+      <div class="button-group">
+        <button id="addToCart">Add to Cart</button>
+        <a href="{{ url_for('cart.view_cart') }}" class="view-cart-btn">
+          🛒 View Cart
+        </a>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
     <script>
-        async function addToCart(event) {
-            event.preventDefault();
-            const productId = document.getElementById('product_id').value;
+      document
+        .getElementById("qrInput")
+        .addEventListener("change", function (event) {
+          const file = event.target.files[0];
+          if (!file) return;
 
-            if (!productId) {
-                alert('Please enter a valid Product ID.');
-                return;
-            }
+          const reader = new FileReader();
+          reader.onload = function () {
+            const img = new Image();
+            img.src = reader.result;
+            img.onload = function () {
+              const canvas = document.createElement("canvas");
+              const ctx = canvas.getContext("2d");
+              canvas.width = img.width;
+              canvas.height = img.height;
+              ctx.drawImage(img, 0, 0, img.width, img.height);
 
-            const response = await fetch('/add_to_cart', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `product_id=${productId}`
-            });
+              const imageData = ctx.getImageData(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+              );
+              const qrCode = jsQR(
+                imageData.data,
+                imageData.width,
+                imageData.height
+              );
 
-            const result = await response.json();
-            alert(result.message);  // Show feedback message
+              if (qrCode) {
+                let scannedData = qrCode.data.trim(); // Remove extra spaces
+                console.log("Scanned QR Data:", scannedData);
 
-            const cartCountElement = document.getElementById('cart_count');
-            if (cartCountElement) {
-                cartCountElement.innerText = result.cart_count; // Update cart count
-            }
-        }
+                // Extract only numeric Product ID using regex (assuming product IDs are numbers)
+                let productIdMatch = scannedData.match(/\d+/);
+                if (!productIdMatch) {
+                  alert("Invalid QR Code: No product ID found!");
+                  return;
+                }
+
+                let productId = productIdMatch[0]; // Extract only the numeric ID
+                console.log("Extracted Product ID:", productId);
+
+                // Show Add to Cart button and attach product ID
+                const addToCartButton = document.getElementById("addToCart");
+                addToCartButton.style.display = "block";
+                addToCartButton.onclick = function () {
+                  fetch("/add_to_cart", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: `product_id=${productId}`,
+                  })
+                    .then((response) => response.json())
+                    .then((data) => alert(data.message))
+                    .catch((error) => console.error("Error:", error));
+                };
+              } else {
+                alert("No QR code detected!");
+              }
+            };
+          };
+          reader.readAsDataURL(file);
+        });
     </script>
-</head>
-<body>
-    <h1>Welcome to the QR Code Billing System</h1>
-
-    <form onsubmit="addToCart(event)">
-        <label for="product_id">Enter Product ID (Simulating QR Scan):</label>
-        <input type="number" id="product_id" name="product_id" required>
-        <button type="submit">Add to Cart</button>
-    </form>
-
-    <br>
-    <a href="{{ url_for('cart.view_cart') }}">View Cart (<span id="cart_count">0</span>)</a>
-</body>
+  </body>
 </html>

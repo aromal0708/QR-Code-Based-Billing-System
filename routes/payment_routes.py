@@ -1,33 +1,47 @@
-from flask import Blueprint, request, session, redirect, url_for, flash
+from flask import Blueprint, session, request, redirect, url_for, flash
+from database import get_db_connection
 import uuid
-from database import get_db_connection  # Importing database connection
 
 payment_bp = Blueprint('payment', __name__)
+
+import uuid
 
 @payment_bp.route('/process_payment', methods=['POST'])
 def process_payment():
     if 'session_id' not in session:
-        return redirect(url_for('cart.checkout'))  # Redirect to checkout if no session
+        session['session_id'] = str(uuid.uuid4())  # Generate a unique session ID if not exists
 
     db = get_db_connection()
     cursor = db.cursor()
 
-    # Get the total price from the session cart data
+    transaction_id = session['session_id']  # Use session ID as transaction ID
     cart = session.get('cart', [])
-    total_price = sum(item['total_price'] for item in cart)  # Calculate the total from the cart session
 
-    # Generate a unique transaction ID
-    transaction_id = str(uuid.uuid4())
+    if not cart:
+        flash("Your cart is empty. Please add items before making a payment.", "warning")
+        return redirect(url_for('cart.checkout'))  # Redirect to checkout
 
-    # Insert into transactions table
-    cursor.execute("INSERT INTO transactions (TransactionID, user_id, product_id, product_name, quantity, total_price) VALUES (%s, %s, %s, %s, %s, %s)", 
-                   (transaction_id, None, None, None, None, total_price))  # 'None' can be used for products and user_id since you're not saving item-level details
-    db.commit()
+    total_price = sum(item['total_price'] for item in cart)
 
-    # Clear the session after storing the transaction
+    try:
+        # Store only transaction ID and total price in DB
+        cursor.execute(
+            "INSERT INTO transactions (TransactionID, total_price) VALUES (%s, %s)",
+            (transaction_id, total_price)
+        )
+        db.commit()
+        
+        flash("✅ Payment successful! Your transaction has been recorded.", "success")
+
+    except Exception as e:
+        db.rollback()  # Rollback in case of an error
+        flash(f"❌ Payment failed: {str(e)}", "danger")
+
+    finally:
+        cursor.close()
+        db.close()
+
+    # Clear session after successful payment
     session.clear()
 
-    # Flash success message
-    flash("Payment successful! Your transaction has been recorded.", "success")
-
-    return redirect(url_for('product.home'))  # Redirect to home page  
+    return redirect(url_for('product.home'))  # Redirect to home page

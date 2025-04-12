@@ -4,11 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="static/css/checkout.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Checkout</h1>
-    <p>Total Amount: ₹{{ total_price }}</p>
+    <div class="container">
+        <h1>Checkout</h1>
+        
+        <div class="total-amount">
+            <strong>Total Amount:</strong> ₹{{ total_price }}
+        </div>
+
+        <div class="payment-methods">
+            <h2>Select Payment Method</h2>
+            <div class="payment-options">
+                <div class="payment-option">💳 Credit Card</div>
+                <div class="payment-option">🏦 Net Banking</div>
+                <div class="payment-option">📱 UPI</div>
+            </div>
+        </div>
+
+        <form action="{{ url_for('payment.process_payment') }}" method="POST">
+            <button type="submit">Pay Now</button>
+        </form>
+    </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -19,9 +38,5 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-
-    <form action="{{ url_for('payment.process_payment') }}" method="POST">
-        <button type="submit">Pay Now</button>
-    </form>
 </body>
 </html>

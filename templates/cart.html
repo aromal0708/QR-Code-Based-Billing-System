@@ -4,57 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/cart.css">
 </head>
 <body>
-    <h1>Your Cart</h1>
+    <div class="container">
+        <h1>Your Shopping Cart</h1>
 
-    {% if cart %}
-    <table border="1">
-        <tr>
-            <th>Product Name</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            <th>Total Price</th>
-            <th>Action</th>
-        </tr>
-        {% for item in cart %}
-        <tr>
-            <td>{{ item.name }}</td>
-            <td>₹{{ item.price}}</td>  <!-- Price per item -->
-            <td>{{ item.quantity }}</td>
-            <td>₹{{ item.price * item.quantity }}</td>  <!-- Total price for that item -->
-            <td>
-                <form action="/remove_from_cart" method="POST">
-                    <input type="hidden" name="product_id" value="{{ item.id }}">
-                    <button type="submit">Remove One</button>
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+        {% if cart %}
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart %}
+                <tr>
+                    <td>{{ item.name }}</td>
+                    <td>₹{{ item.price }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.price * item.quantity }}</td>
+                    <td>
+                        <form action="/remove_from_cart" method="POST">
+                            <input type="hidden" name="product_id" value="{{ item.id }}">
+                            <button type="submit" class="remove-btn">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-    <p><strong>Total Price:</strong> ₹{{ total_price }}</p>
+        <div class="total-section">
+            <p class="total-price">Total Price: ₹{{ total_price }}</p>
+        </div>
 
-    <!-- Proceed to Pay Button -->
-    <form action="{{ url_for('cart.checkout') }}" method="get">
-        <button type="submit" class="btn btn-primary">Proceed to Pay</button>
-    </form>
+        <div class="button-group">
+            <form action="{{ url_for('cart.checkout') }}" method="get">
+                <button type="submit" class="btn btn-primary">Proceed to Pay</button>
+            </form>
 
-    <!-- Cancel Purchase Button -->
-    <form action="{{ url_for('cart.cancel_purchase') }}" method="POST">
-        <button type="submit">Cancel Purchase</button>
-    </form>
+            <form action="{{ url_for('cart.cancel_purchase') }}" method="POST">
+                <button type="submit" class="btn btn-danger">Cancel Purchase</button>
+            </form>
+        </div>
 
-    {% else %}
-    <p>Your cart is empty.</p>
-    {% endif %}
+        {% else %}
+        <div class="empty-cart">
+            <p>Your cart is empty.</p>
+        </div>
+        {% endif %}
 
-    <br>
-    <!-- Return to Shopping Button -->
-    <a href="{{ url_for('product.home') }}">
-        <button>Return to Shopping</button>
-    </a>
+        <div class="button-group" style="margin-top: 1rem;">
+            <a href="{{ url_for('product.home') }}" class="btn btn-secondary">Continue Shopping</a>
+        </div>
+    </div>
 </body>
 </html>
 <!-- End of cart.html -->

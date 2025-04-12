@@ -4,73 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Product</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-
-    <style>
-        body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    text-align: center;
-}
-
-.container {
-    width: 40%;
-    margin: 50px auto;
-    padding: 20px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-    margin-bottom: 20px;
-}
-
-label {
-    display: block;
-    font-weight: bold;
-    margin-top: 10px;
-}
-
-input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-
-button {
-    margin-top: 15px;
-    padding: 10px 15px;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #218838;
-}
-
-.flash {
-    margin: 10px 0;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.flash.success {
-    background: #d4edda;
-    color: #155724;
-}
-
-.flash.danger {
-    background: #f8d7da;
-    color: #721c24;
-}
-
-    </style>
+    <link rel="stylesheet" href="static/css/product.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -86,19 +21,25 @@ button:hover {
         {% endwith %}
         
         <form action="{{ url_for('product.add_product') }}" method="POST">
-            <label for="product_id">Product ID:</label>
-            <input type="text" id="product_id" name="product_id" required>
+            <div class="form-group">
+                <label for="product_id">Product ID:</label>
+                <input type="text" id="product_id" name="product_id" required>
+            </div>
             
-            <label for="product_name">Product Name:</label>
-            <input type="text" id="product_name" name="product_name" required>
+            <div class="form-group">
+                <label for="product_name">Product Name:</label>
+                <input type="text" id="product_name" name="product_name" required>
+            </div>
             
-            <label for="price">Price:</label>
-            <input type="number" id="price" name="price" required>
+            <div class="form-group">
+                <label for="price">Price:</label>
+                <input type="number" id="price" name="price" required>
+            </div>
             
             <button type="submit">Add Product</button>
         </form>
         
-        <a href="{{ url_for('product.home') }}">Back to Home</a>
+        <a href="{{ url_for('product.home') }}" class="back-link">← Back to Home</a>
     </div>
 </body>
 </html>
