@@ -1,32 +1,38 @@
-CREATE  DATABASE qr;
-use qr;
+-- QR Code-Based Billing System Database Setup Script
+-- Run this script to create all necessary tables for the project
 
-CREATE TABLE user(
+-- Create the database if it doesn't exist
+CREATE DATABASE IF NOT EXISTS qr;
+
+-- Use the database
+USE qr;
+
+-- Create user table
+CREATE TABLE IF NOT EXISTS user (
     user_id INT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     phone VARCHAR(15) UNIQUE NOT NULL
-    );
-    
-drop TABLE products;
+);
 
-CREATE TABLE products(
+-- Create products table
+CREATE TABLE IF NOT EXISTS products (
     product_id INT PRIMARY KEY,
     product_name VARCHAR(255) NOT NULL,
-    price INT NOT NULL
-       );
+    price DECIMAL(10,2) NOT NULL
+);
 
-CREATE TABLE orders(
-    order_id varchar(10) PRIMARY KEY,
-    user_id int,
+-- Create orders table
+CREATE TABLE IF NOT EXISTS orders (
+    order_id VARCHAR(10) PRIMARY KEY,
+    user_id INT,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    total_amount INT NOT NULL,
+    total_amount DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(user_id)
 );
 
-drop table transactions;
-
-CREATE TABLE transactions (
+-- Create transactions table
+CREATE TABLE IF NOT EXISTS transactions (
     TransactionID VARCHAR(36) PRIMARY KEY,
     user_id INT,
     product_id INT,
@@ -36,8 +42,14 @@ CREATE TABLE transactions (
     TransactionDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES user(user_id) ON DELETE SET NULL
 );
-desc transactions;
 
-select * from products;
-select * from orders;
-select * from transactions;
+-- Insert sample product data for testing
+INSERT INTO products (product_id, product_name, price) VALUES 
+(1, 'Laptop', 45000.00),
+(2, 'Smartphone', 25000.00),
+(3, 'Headphones', 1500.00),
+(4, 'Mouse', 500.00),
+(5, 'Keyboard', 1000.00);
+
+-- Verify tables were created
+SHOW TABLES;
